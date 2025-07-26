@@ -1,10 +1,10 @@
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.vectorstores import Pinecone as LangchainPinecone
-from langchain.embeddings import OpenAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
 
-from embeddings.embedder import Embedder
-from database.PineconeDB import PCDB
+from embedder import Embedder
+from PineconeDB import PCDB
 
 from dotenv import load_dotenv
 import os
