@@ -43,12 +43,7 @@ class Embedder:
     def embed_query(self, query):
         return self.embedder.embed_query(query)
 
-    # put category name by filter
     def search_texts_by_query(self, query, top_k=5, filter=None):
         query_vector = self.embed_query(query)
         results = self.pcdb.query(query_vector, top_k=top_k, filter=filter)
-        texts = []
-        for match in results.get("matches", []):
-            text = match.get("metadata", {}).get("text", "<no text>")
-            texts.append(text)
-        return texts
+        return results

@@ -52,3 +52,7 @@ print(len(embeddings[0]['values']))
 # embed_query
 result = embedder.embed_query('what is this')
 print(result)
+
+# search_texts_by_query
+texts = embedder.search_texts_by_query(query="Did she walk slowly")
+print(texts)
