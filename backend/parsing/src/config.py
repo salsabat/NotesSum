@@ -1,14 +1,20 @@
 import os
 from pathlib import Path
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional, List
 
 class Settings(BaseSettings):
     """Configuration settings for the Notes Summarizer"""
     
-    # API Keys
+    # API Keys 
+    PINECONE_API_KEY:    str
+    PINECONE_ENVIRONMENT: str
+    PINECONE_INDEX_NAME:  str
     OPENAI_API_KEY: Optional[str] = None
-    
+    model_config = SettingsConfigDict(
+        env_file       = ".env",       # if you use load_dotenv you can omit this
+        extra          = "ignore",
+    )
     # Model Settings
     USE_GPU: bool = True
     PADDLE_OCR_LANG: str = "en"
@@ -41,9 +47,6 @@ class Settings(BaseSettings):
     # Math OCR Settings
     MATH_OCR_MODEL: str = "facebook/nougat-base"
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
 
 # Global settings instance
 settings = Settings()
