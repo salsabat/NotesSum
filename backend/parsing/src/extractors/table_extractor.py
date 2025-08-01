@@ -3,6 +3,7 @@ from typing import Dict, List, Any, Optional, Tuple
 import cv2
 from bs4 import BeautifulSoup
 import pandas as pd
+import logging
 
 try:
     from paddleocr import PPStructure
@@ -17,7 +18,9 @@ class TableExtractor(BaseExtractor):
     """Extract table data using PaddleOCR PP-Structure"""
     
     def __init__(self, confidence_threshold: float = 0.8):
-        super().__init__(confidence_threshold)
+        super().__init__({'confidence_threshold': confidence_threshold})
+        self.confidence_threshold = confidence_threshold
+        self.logger = logging.getLogger(__name__)
         
         if PADDLE_STRUCTURE_AVAILABLE:
             try:

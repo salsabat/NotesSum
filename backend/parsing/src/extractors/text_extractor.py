@@ -4,6 +4,7 @@ import paddleocr
 import easyocr
 import cv2
 from PIL import Image
+import logging
 
 from .base import BaseExtractor
 from ..config import settings
@@ -12,7 +13,9 @@ class TextExtractor(BaseExtractor):
     """Extract plain text using PaddleOCR with EasyOCR fallback"""
     
     def __init__(self, confidence_threshold: float = 0.8):
-        super().__init__(confidence_threshold)
+        super().__init__({'confidence_threshold': confidence_threshold})
+        self.confidence_threshold = confidence_threshold
+        self.logger = logging.getLogger(__name__)
         
         # Initialize PaddleOCR
         try:
@@ -262,3 +265,42 @@ class TextExtractor(BaseExtractor):
             return 0.0
         
         return extracted_data.get('confidence', 0.0)
+    
+    def preprocess_image(self, image: np.ndarray, region_bbox: Optional[Tuple[int, int, int, int]] = None) -> np.ndarray:
+        """Preprocess image for OCR"""
+        if region_bbox is not None:
+            x1, y1, x2, y2 = region_bbox
+            image = image[y1:y2, x1:x2]
+        
+        # Convert to RGB if needed
+        if len(image.shape) == 3 and image.shape[2] == 3:
+            # Already RGB
+            pass
+        elif len(image.shape) == 3 and image.shape[2] == 4:
+            # RGBA to RGB
+            image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
+        elif len(image.shape) == 2:
+            # Grayscale to RGB
+            image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+        
+        return image
+    
+    def enhance_image_quality(self, image: np.ndarray) -> np.ndarray:
+        """Enhance image quality for better OCR results"""
+        # Convert to grayscale for processing
+        if len(image.shape) == 3:
+            gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+        else:
+            gray = image.copy()
+        
+        # Apply CLAHE (Contrast Limited Adaptive Histogram Equalization)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+        enhanced = clahe.apply(gray)
+        
+        # Apply slight Gaussian blur to reduce noise
+        enhanced = cv2.GaussianBlur(enhanced, (1, 1), 0)
+        
+        # Convert back to RGB
+        enhanced_rgb = cv2.cvtColor(enhanced, cv2.COLOR_GRAY2RGB)
+        
+        return enhanced_rgb

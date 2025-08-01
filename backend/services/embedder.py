@@ -19,7 +19,6 @@ class Embedder:
             separators=["\n\n", "\n", ".", "!", "?", " "]
         )
         self.pcdb = pcdb_instance
-
     # put class name as category
     def embed_document(self, text, category):
         chunks = self.text_splitter.split_text(text)
